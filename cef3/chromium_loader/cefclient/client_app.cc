@@ -12,7 +12,9 @@
 #include "include/cef_process_message.h"
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
-#include "util.h"  // NOLINT(build/include)
+#include "include/wrapper/cef_helpers.h"
+
+namespace client {
 
 ClientApp::ClientApp() {
 }
@@ -31,8 +33,10 @@ void ClientApp::OnContextInitialized() {
 
   // Register cookieable schemes with the global cookie manager.
   CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
-  ASSERT(manager.get());
+  DCHECK(manager.get());
   manager->SetSupportedSchemes(cookieable_schemes_);
+
+  print_handler_ = CreatePrintHandler();
 
   BrowserDelegateSet::iterator it = browser_delegates_.begin();
   for (; it != browser_delegates_.end(); ++it)
@@ -144,7 +148,7 @@ bool ClientApp::OnProcessMessageReceived(
     CefRefPtr<CefBrowser> browser,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
-  ASSERT(source_process == PID_BROWSER);
+  DCHECK_EQ(source_process, PID_BROWSER);
 
   bool handled = false;
 
@@ -157,26 +161,4 @@ bool ClientApp::OnProcessMessageReceived(
   return handled;
 }
 
-void ClientApp::OnBeforeCommandLineProcessing(
-    const CefString& process_type,
-    CefRefPtr<CefCommandLine> command_line) {
-#if defined(OS_MACOSX)
-  //command_line->AppendSwitch("use-core-animation");
-
-  char* szWorkingDir = getenv("JAVACEF_PATH");
-  if (!szWorkingDir)
-    return;
-
-  std::string path(szWorkingDir);
-  std::string locale;
-
-#if defined(__LP64__)
-  locale = path + "/cef_runtime/mac64";
-#else
-  locale = path + "/cef_runtime/mac32";
-#endif
-
-  locale += "/cefclient.app/Contents/Frameworks/Chromium Embedded Framework.framework/Resources/en.lproj/locale.pak";
-  command_line->AppendSwitchWithValue("locale_pak", locale);
-#endif
-}
+}  // namespace client

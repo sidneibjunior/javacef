@@ -6,7 +6,8 @@
 // a qualified path.
 #include "client_switches.h"  // NOLINT(build/include)
 
-namespace cefclient {
+namespace client {
+namespace switches {
 
 // CEF and Chromium support a wide range of command-line switches. This file
 // only contains command-line switches specific to the cefclient application.
@@ -22,7 +23,10 @@ const char kMultiThreadedMessageLoop[] = "multi-threaded-message-loop";
 const char kCachePath[] = "cache-path";
 const char kUrl[] = "url";
 const char kOffScreenRenderingEnabled[] = "off-screen-rendering-enabled";
+const char kOffScreenFrameRate[] = "off-screen-frame-rate";
 const char kTransparentPaintingEnabled[] = "transparent-painting-enabled";
+const char kShowUpdateRect[] = "show-update-rect";
 const char kMouseCursorChangeDisabled[] = "mouse-cursor-change-disabled";
 
-}  // namespace cefclient
+}  // namespace switches
+}  // namespace client

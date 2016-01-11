@@ -4,9 +4,14 @@
 
 #include "cefclient/client_app.h"
 #include "cefclient/client_renderer.h"
-#include "cefclient/dom_test.h"
 #include "cefclient/performance_test.h"
 #include "cefclient/scheme_test.h"
+
+#if defined(OS_LINUX)
+#include "cefclient/print_handler_gtk.h"
+#endif
+
+namespace client {
 
 // static
 void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
@@ -14,8 +19,7 @@ void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
 
 // static
 void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
-  client_renderer::CreateRenderDelegates(delegates);
-  dom_test::CreateRenderDelegates(delegates);
+  renderer::CreateRenderDelegates(delegates);
   performance_test::CreateRenderDelegates(delegates);
 }
 
@@ -25,3 +29,14 @@ void ClientApp::RegisterCustomSchemes(
     std::vector<CefString>& cookiable_schemes) {
   scheme_test::RegisterCustomSchemes(registrar, cookiable_schemes);
 }
+
+// static
+CefRefPtr<CefPrintHandler> ClientApp::CreatePrintHandler() {
+#if defined(OS_LINUX)
+  return new ClientPrintHandlerGtk();
+#else
+  return NULL;
+#endif
+}
+
+}  // namespace client

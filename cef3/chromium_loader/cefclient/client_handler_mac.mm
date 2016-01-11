@@ -7,29 +7,32 @@
 #include "cefclient/client_handler.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
-#include "cefclient/cefclient.h"
+//#include "cefclient/cefclient.h"
 #include "chromium_loader/jni_tools.h"
+
+namespace client {
 
 void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     const CefString& url) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
-  if (m_BrowserId == browser->GetIdentifier() && frame->IsMain()) {
+  if (GetBrowserId() == browser->GetIdentifier() && frame->IsMain()) {
     // Set the edit window text
-    /*NSTextField* textField = (NSTextField*)m_EditHwnd;
+    NSTextField* textField = (NSTextField*)edit_handle_;
     std::string urlStr(url);
     NSString* str = [NSString stringWithUTF8String:urlStr.c_str()];
-    [textField setStringValue:str];*/
+    [textField setStringValue:str];
   }
 }
 
 void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
+  // Set the frame window title bar
   NSView* view = (NSView*)browser->GetHost()->GetWindowHandle();
-  if (m_BrowserId == browser->GetIdentifier()) {
+  if (GetBrowserId() == browser->GetIdentifier()) {
     if (id != browser->GetHost()->GetClient()->id)
       fprintf(stderr, "ClientHandler::OnTitleChange id is not the same\n");
 
@@ -44,31 +47,6 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
   }
 }
 
-void ClientHandler::SendNotification(NotificationType type) {
-  /*
-  SEL sel = nil;
-  switch(type) {
-    case NOTIFY_CONSOLE_MESSAGE:
-      sel = @selector(notifyConsoleMessage:);
-      break;
-    case NOTIFY_DOWNLOAD_COMPLETE:
-      sel = @selector(notifyDownloadComplete:);
-      break;
-    case NOTIFY_DOWNLOAD_ERROR:
-      sel = @selector(notifyDownloadError:);
-      break;
-  }
-
-  if (sel == nil)
-    return;
-
-  NSWindow* window = [AppGetMainHwnd() window];
-  NSObject* delegate = [window delegate];
-  [delegate performSelectorOnMainThread:sel withObject:nil waitUntilDone:NO];
-  */
-  printf("[javacef] Dowload status: %d\n", type);
-}
-
 void ClientHandler::SetLoading(bool isLoading) {
   if (id != -1)
     send_load(id, isLoading);
@@ -78,6 +56,4 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
   // TODO(port): Change button status.
 }
 
-std::string ClientHandler::GetDownloadPath(const std::string& file_name) {
-  return std::string();
-}
+}  // namespace client

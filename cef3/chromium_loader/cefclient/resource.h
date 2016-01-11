@@ -22,11 +22,9 @@
 #define IDC_NAV_FORWARD                 201
 #define IDC_NAV_RELOAD                  202
 #define IDC_NAV_STOP                    203
-#define ID_WARN_CONSOLEMESSAGE          32000
-#define ID_WARN_DOWNLOADCOMPLETE        32001
-#define ID_WARN_DOWNLOADERROR           32002
 #define ID_QUIT                         32500
 #define ID_FIND                         32501
+#define ID_TESTS_FIRST                  32700
 #define ID_TESTS_GETSOURCE              32700
 #define ID_TESTS_GETTEXT                32701
 #define ID_TESTS_OTHER_TESTS            32702
@@ -39,23 +37,20 @@
 #define ID_TESTS_ZOOM_IN                32709
 #define ID_TESTS_ZOOM_OUT               32710
 #define ID_TESTS_ZOOM_RESET             32711
+#define ID_TESTS_LAST                   32711
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001
-#define IDS_DOMACCESS                   1002
-#define IDS_LOCALSTORAGE                1003
-#define IDS_LOGO                        1004
-#define IDS_LOGOBALL                    1005
-#define IDS_OSRTEST                     1006
-#define IDS_OTHER_TESTS                 1007
-#define IDS_PERFORMANCE                 1008
-#define IDS_TRANSPARENCY                1009
-#define IDS_WINDOW                      1010
-#define IDS_XMLHTTPREQUEST              1011
-#define IDS_PERFORMANCE2                1012
-
-// Avoid files associated with MacOS
-#define _X86_
+#define IDS_LOCALSTORAGE                1002
+#define IDS_LOGO                        1003
+#define IDS_LOGOBALL                    1004
+#define IDS_OSRTEST                     1005
+#define IDS_OTHER_TESTS                 1006
+#define IDS_PERFORMANCE                 1007
+#define IDS_TRANSPARENCY                1008
+#define IDS_WINDOW                      1009
+#define IDS_XMLHTTPREQUEST              1010
+#define IDS_PERFORMANCE2                1011
 
 // Next default values for new objects
 // 

@@ -8,15 +8,19 @@
 #define CEF_TESTS_CEFCLIENT_CEFCLIENT_SWITCHES_H_
 #pragma once
 
-namespace cefclient {
+namespace client {
+namespace switches {
 
 extern const char kMultiThreadedMessageLoop[];
 extern const char kCachePath[];
 extern const char kUrl[];
 extern const char kOffScreenRenderingEnabled[];
+extern const char kOffScreenFrameRate[];
 extern const char kTransparentPaintingEnabled[];
+extern const char kShowUpdateRect[];
 extern const char kMouseCursorChangeDisabled[];
 
-}  // namespace cefclient
+}  // namespace switches
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_CEFCLIENT_SWITCHES_H_

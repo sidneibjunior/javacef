@@ -13,6 +13,8 @@
 #include <vector>
 #include "include/cef_app.h"
 
+namespace client {
+
 class ClientApp : public CefApp,
                   public CefBrowserProcessHandler,
                   public CefRenderProcessHandler {
@@ -116,55 +118,58 @@ class ClientApp : public CefApp,
   static void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
                                     std::vector<CefString>& cookiable_schemes);
 
+  // Create the Linux print handler. Implemented in client_app_delegates.
+  static CefRefPtr<CefPrintHandler> CreatePrintHandler();
+
   // CefApp methods.
-  virtual void OnRegisterCustomSchemes(
+  void OnRegisterCustomSchemes(
       CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE;
-  virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler()
-      OVERRIDE { return this; }
-  virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler()
-      OVERRIDE { return this; }
+  CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() OVERRIDE {
+    return this;
+  }
+  CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() OVERRIDE {
+    return this;
+  }
 
   // CefBrowserProcessHandler methods.
-  virtual void OnContextInitialized() OVERRIDE;
-  virtual void OnBeforeChildProcessLaunch(
+  void OnContextInitialized() OVERRIDE;
+  void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;
-  virtual void OnRenderProcessThreadCreated(CefRefPtr<CefListValue> extra_info)
-                                            OVERRIDE;
+  void OnRenderProcessThreadCreated(
+      CefRefPtr<CefListValue> extra_info) OVERRIDE;
+  CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE {
+    return print_handler_;
+  }
 
   // CefRenderProcessHandler methods.
-  virtual void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info)
-                                     OVERRIDE;
-  virtual void OnWebKitInitialized() OVERRIDE;
-  virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE;
-  virtual bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  CefRefPtr<CefRequest> request,
-                                  NavigationType navigation_type,
-                                  bool is_redirect) OVERRIDE;
-  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE;
-  virtual void OnContextReleased(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 CefRefPtr<CefV8Context> context) OVERRIDE;
-  virtual void OnUncaughtException(CefRefPtr<CefBrowser> browser,
-                                   CefRefPtr<CefFrame> frame,
-                                   CefRefPtr<CefV8Context> context,
-                                   CefRefPtr<CefV8Exception> exception,
-                                   CefRefPtr<CefV8StackTrace> stackTrace)
-                                   OVERRIDE;
-  virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefDOMNode> node) OVERRIDE;
-  virtual bool OnProcessMessageReceived(
+  void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info) OVERRIDE;
+  void OnWebKitInitialized() OVERRIDE;
+  void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE;
+  bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
+                          CefRefPtr<CefFrame> frame,
+                          CefRefPtr<CefRequest> request,
+                          NavigationType navigation_type,
+                          bool is_redirect) OVERRIDE;
+  void OnContextCreated(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame,
+                        CefRefPtr<CefV8Context> context) OVERRIDE;
+  void OnContextReleased(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         CefRefPtr<CefV8Context> context) OVERRIDE;
+  void OnUncaughtException(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefV8Context> context,
+                           CefRefPtr<CefV8Exception> exception,
+                           CefRefPtr<CefV8StackTrace> stackTrace) OVERRIDE;
+  void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefDOMNode> node) OVERRIDE;
+  bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;
-  virtual void OnBeforeCommandLineProcessing(
-      const CefString& process_type,
-      CefRefPtr<CefCommandLine> command_line) OVERRIDE;
 
   // Set of supported BrowserDelegates. Only used in the browser process.
   BrowserDelegateSet browser_delegates_;
@@ -176,7 +181,11 @@ class ClientApp : public CefApp,
   // both the browser and renderer process.
   std::vector<CefString> cookieable_schemes_;
 
+  CefRefPtr<CefPrintHandler> print_handler_;
+
   IMPLEMENT_REFCOUNTING(ClientApp);
 };
+
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_CLIENT_APP_H_

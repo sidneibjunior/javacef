@@ -1,4 +1,4 @@
-// Copyright (c) 2014 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2015 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -32,10 +32,6 @@ int CEF_CALLBACK jsdialog_handler_on_jsdialog(
   DCHECK(browser);
   if (!browser)
     return 0;
-  // Verify param: origin_url; type: string_byref_const
-  DCHECK(origin_url);
-  if (!origin_url)
-    return 0;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
   if (!callback)
@@ -44,7 +40,8 @@ int CEF_CALLBACK jsdialog_handler_on_jsdialog(
   DCHECK(suppress_message);
   if (!suppress_message)
     return 0;
-  // Unverified params: accept_lang, message_text, default_prompt_text
+  // Unverified params: origin_url, accept_lang, message_text,
+  // default_prompt_text
 
   // Translate param: suppress_message; type: bool_byref
   bool suppress_messageBool = (
@@ -148,7 +145,7 @@ CefJSDialogHandlerCppToC::CefJSDialogHandlerCppToC(CefJSDialogHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefJSDialogHandlerCppToC, CefJSDialogHandler,
-    cef_jsdialog_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefJSDialogHandlerCppToC,
+    CefJSDialogHandler, cef_jsdialog_handler_t>::DebugObjCt = 0;
 #endif
 
