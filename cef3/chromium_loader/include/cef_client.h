@@ -55,6 +55,8 @@
 #include "include/cef_render_handler.h"
 #include "include/cef_request_handler.h"
 
+#include "chromium_loader/chromium_settings.h"
+
 ///
 // Implement this interface to provide handler implementations.
 ///
@@ -189,6 +191,10 @@ class CefClient : public virtual CefBase {
                                         CefRefPtr<CefProcessMessage> message) {
     return false;
   }
+
+  int id;
+  ChromiumSettings csettings;
+
 };
 
 #endif  // CEF_INCLUDE_CEF_CLIENT_H_

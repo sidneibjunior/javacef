@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2015 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -35,25 +35,27 @@
 #ifndef CEF_INCLUDE_CEF_VERSION_H_
 #define CEF_INCLUDE_CEF_VERSION_H_
 
+#define CEF_VERSION "3.2272.32.gbda8dc7"
 #define CEF_VERSION_MAJOR 3
-#define CEF_REVISION 1738
-#define COPYRIGHT_YEAR 2014
+#define CEF_COMMIT_NUMBER 32
+#define CEF_COMMIT_HASH "bda8dc71be6ffce529b6c63fecd821509d0c406e"
+#define COPYRIGHT_YEAR 2015
 
-#define CHROME_VERSION_MAJOR 33
+#define CHROME_VERSION_MAJOR 41
 #define CHROME_VERSION_MINOR 0
-#define CHROME_VERSION_BUILD 1750
-#define CHROME_VERSION_PATCH 170
+#define CHROME_VERSION_BUILD 2272
+#define CHROME_VERSION_PATCH 104
 
 #define DO_MAKE_STRING(p) #p
 #define MAKE_STRING(p) DO_MAKE_STRING(p)
 
 #ifndef APSTUDIO_HIDDEN_SYMBOLS
 
+#include "include/internal/cef_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "internal/cef_export.h"
 
 // The API hash is created by analyzing CEF header files for C API type
 // definitions. The hash value will change when header files are modified
@@ -61,25 +63,19 @@ extern "C" {
 // universal hash value will change if any platform is affected whereas the
 // platform hash values will change only if that particular platform is
 // affected.
-#define CEF_API_HASH_UNIVERSAL "97238e85785c70a4f1c5e3eec6f67fcbef2df89e"
+#define CEF_API_HASH_UNIVERSAL "a02660d18772456c1e0a7cdf8ea569e65d02e759"
 #if defined(OS_WIN)
-#define CEF_API_HASH_PLATFORM "2a84f1539871434274323d2d6742545820a42dfe"
+#define CEF_API_HASH_PLATFORM "0a4832aa0012d38dbe9a50c2e2f1f083ee143e3c"
 #elif defined(OS_MACOSX)
-#define CEF_API_HASH_PLATFORM "7b1d9369d55ee8a12a7a848e3b82c4f8e5429632"
+#define CEF_API_HASH_PLATFORM "c13fc7e21191eb6e6a46f29018d5ffb10b613007"
 #elif defined(OS_LINUX)
-#define CEF_API_HASH_PLATFORM "c8fdbd5a5eea66912e3741daecaebbeba90d552f"
+#define CEF_API_HASH_PLATFORM "0beb426c1ee60bd4b8ed8bedd1400c1e4f02df8b"
 #endif
 
-///
-// Returns the CEF build revision for the libcef library.
-///
-CEF_EXPORT int cef_build_revision();
-
-///
 // Returns CEF version information for the libcef library. The |entry|
 // parameter describes which version component will be returned:
 // 0 - CEF_VERSION_MAJOR
-// 1 - CEF_REVISION
+// 1 - CEF_COMMIT_NUMBER
 // 2 - CHROME_VERSION_MAJOR
 // 3 - CHROME_VERSION_MINOR
 // 4 - CHROME_VERSION_BUILD
@@ -93,6 +89,7 @@ CEF_EXPORT int cef_version_info(int entry);
 // hash value will be returned:
 // 0 - CEF_API_HASH_PLATFORM
 // 1 - CEF_API_HASH_UNIVERSAL
+// 2 - CEF_COMMIT_HASH
 ///
 CEF_EXPORT const char* cef_api_hash(int entry);
 

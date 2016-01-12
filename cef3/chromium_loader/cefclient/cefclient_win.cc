@@ -17,29 +17,32 @@
 #include "include/cef_web_plugin.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
-#include "cefclient/string_util.h"
-#include "cefclient/util.h"
+
+#include "cefclient/main_context_impl.h"
 
 // The global ClientHandler reference.
-extern CefRefPtr<ClientHandler> g_handler;
+extern CefRefPtr<client::ClientHandler> g_handler;
+client::MainContextImpl *g_context;
 
-CefRefPtr<ClientHandler> InitBrowser(CefWindowHandle handle, CefString url) {
+CefRefPtr<client::ClientHandler> InitBrowser(CefWindowHandle handle, CefString url) {
   // Set the first browser as the global main handler
-  g_handler = new ClientHandler();
+  g_context = new client::MainContextImpl(0, NULL);
+  g_handler = new client::ClientHandler();
   g_handler->id = 1;
 
   CreateBrowser(handle, url, g_handler);
+  
   return g_handler;
 }
 
-CefRefPtr<ClientHandler> NewBrowser(CefWindowHandle handle, CefString url) {
-  CefRefPtr<ClientHandler> g_handler_local = new ClientHandler();
+CefRefPtr<client::ClientHandler> NewBrowser(CefWindowHandle handle, CefString url) {
+  CefRefPtr<client::ClientHandler> g_handler_local = new client::ClientHandler();
   CreateBrowser(handle, url, g_handler_local);
   return g_handler_local;
 }
 
-void CreateBrowser(CefWindowHandle handle, CefString url, CefRefPtr<ClientHandler> g_handler_local) {
-  g_handler_local->SetMainHwnd(handle);
+void CreateBrowser(CefWindowHandle handle, CefString url, CefRefPtr<client::ClientHandler> g_handler_local) {
+  g_handler_local->SetMainWindowHandle(handle);
 
   RECT rect;
   GetClientRect(handle, &rect);

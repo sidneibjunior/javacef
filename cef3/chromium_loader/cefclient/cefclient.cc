@@ -15,10 +15,8 @@
 #include "include/cef_web_plugin.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
-#include "cefclient/string_util.h"
-#include "cefclient/util.h"
 
-CefRefPtr<ClientHandler> g_handler;
+CefRefPtr<client::ClientHandler> g_handler;
 CefRefPtr<CefCommandLine> g_command_line;
 
 CefRefPtr<CefBrowser> AppGetBrowser() {
@@ -30,7 +28,7 @@ CefRefPtr<CefBrowser> AppGetBrowser() {
 CefWindowHandle AppGetMainHwnd() {
   if (!g_handler.get())
     return NULL;
-  return g_handler->GetMainHwnd();
+  return g_handler->GetMainWindowHandle();
 }
 
 void AppInitCommandLine(int argc, const char* const* argv) {
@@ -49,7 +47,7 @@ CefRefPtr<CefCommandLine> AppGetCommandLine() {
 
 // Returns the application settings based on command line arguments.
 void AppGetSettings(CefSettings& settings) {
-  ASSERT(g_command_line.get());
+  DCHECK(g_command_line.get());
   if (!g_command_line.get())
     return;
 
@@ -57,22 +55,22 @@ void AppGetSettings(CefSettings& settings) {
 
 #if defined(OS_WIN)
   settings.multi_threaded_message_loop =
-      g_command_line->HasSwitch(cefclient::kMultiThreadedMessageLoop);
+	  g_command_line->HasSwitch(client::switches::kMultiThreadedMessageLoop);
 #endif
 
   CefString(&settings.cache_path) =
-      g_command_line->GetSwitchValue(cefclient::kCachePath);
+	  g_command_line->GetSwitchValue(client::switches::kCachePath);
 }
 
 bool AppIsOffScreenRenderingEnabled() {
-  ASSERT(g_command_line.get());
+  DCHECK(g_command_line.get());
   if (!g_command_line.get())
     return false;
 
-  return g_command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled);
+  return g_command_line->HasSwitch(client::switches::kOffScreenRenderingEnabled);
 }
 
-void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
+/*void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefStringVisitor {
    public:
     explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
@@ -90,9 +88,9 @@ void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
   };
 
   browser->GetMainFrame()->GetSource(new Visitor(browser));
-}
+}*/
 
-void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
+/*void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefStringVisitor {
    public:
     explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
@@ -110,7 +108,7 @@ void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
   };
 
   browser->GetMainFrame()->GetText(new Visitor(browser));
-}
+}*/
 
 void RunRequestTest(CefRefPtr<CefBrowser> browser) {
   // Create a new request

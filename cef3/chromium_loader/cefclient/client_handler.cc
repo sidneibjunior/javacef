@@ -24,9 +24,10 @@
 #include "cefclient/client_renderer.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/dialog_test.h"
-#include "cefclient/dom_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/test_runner.h"
+#include "cefclient/main_context.h"
+#include "cefclient/main_message_loop.h"
 #include "chromium_loader/jni_tools.h"
 
 #if defined(OS_LINUX)
@@ -498,7 +499,8 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     message_router_ = NULL;
 
     // Quit the application message loop.
-    MainMessageLoop::Get()->Quit();
+    //MainMessageLoop::Get()->Quit();
+	CefQuitMessageLoop();
   }
 }
 
@@ -514,6 +516,7 @@ void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
   }
 }
 
+/*
 void ClientHandler::OnLoadStart(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame) {
   CEF_REQUIRE_UI_THREAD();
@@ -540,6 +543,7 @@ void ClientHandler::OnLoadEnd(CefRefPtr<CefBrowser> browser,
           frame->GetURL(), 0);
   }
 }
+*/
 
 void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,

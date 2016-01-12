@@ -22,15 +22,21 @@
 #include "cefclient/client_switches.h"
 #include "cefclient/cookie_handler.h"
 
+#include "cefclient/main_message_loop.h"
+#include "cefclient/main_message_loop_std.h"
+
+client::MainMessageLoop *message_loop;
+
 char szWorkingDir[MAX_PATH];  // The current working directory
-bool message_loop = false;
+//bool message_loop_active = false;
+
 HWND mainBrowserHandle = NULL;
 
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1init
   (JNIEnv *env, jobject jobj, jlong hwnd, jstring url, jobject chromiumset)
 {
   CefMainArgs main_args(GetModuleHandle(NULL));
-  CefRefPtr<ClientApp> app(new ClientApp);
+  CefRefPtr<client::ClientApp> app(new client::ClientApp);
 
   // Retrieve the current working directory.
   if (_getcwd(szWorkingDir, MAX_PATH) == NULL)
@@ -44,7 +50,8 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1init
   // Populate the settings based on command line arguments.
   AppGetSettings(settings);
 
-  settings.multi_threaded_message_loop = message_loop;
+  //settings.multi_threaded_message_loop = message_loop_active;
+  settings.multi_threaded_message_loop = false;
   settings.log_severity = LOGSEVERITY_DISABLE;
   settings.no_sandbox = true;
 
@@ -67,7 +74,7 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1init
   const char* chr = env->GetStringUTFChars(url, 0);
   CefString wc = chr;
 
-  CefRefPtr<ClientHandler> gh = InitBrowser(hMain, wc);
+  CefRefPtr<client::ClientHandler> gh = InitBrowser(hMain, wc);
   gh->id = 1;
 
   env->ReleaseStringUTFChars(url, chr);
@@ -82,12 +89,17 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1init
   // Have to be here and use own jnienv to avoid errors.
   get_browser_settings(env, chromiumset, gh->csettings);
 
-  if (!message_loop) {
+
+  message_loop = new client::MainMessageLoopStd;
+  message_loop->Run();
+  //CefRunMessageLoop();
+  CefShutdown();
+  /*if (!message_loop) {
     // Run the CEF message loop. This function will block until the application
     // recieves a WM_QUIT message.
     CefRunMessageLoop();
     CefShutdown();
-  }
+  }*/
 }
 
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1new
@@ -95,7 +107,7 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1new
 {
   const char* chr = env->GetStringUTFChars(url, 0);
   CefString wc = chr;
-  CefRefPtr<ClientHandler> gh = NewBrowser((HWND)((void*)hwnd), wc);
+  CefRefPtr<client::ClientHandler> gh = NewBrowser((HWND)((void*)hwnd), wc);
   gh->id = id;
   env->ReleaseStringUTFChars(url, chr);
   send_handler(env, jobj, (jlong)(void*)gh);
@@ -105,7 +117,7 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1new
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1close
   (JNIEnv *env, jobject jobj, jlong gh)
 {
-  CefRefPtr<ClientHandler> g_handler_local = (ClientHandler*)gh;
+  CefRefPtr<client::ClientHandler> g_handler_local = (client::ClientHandler*)gh;
   /*CefRefPtr<ClientHandler> g_handler_local;
   _asm {
     push eax
@@ -123,11 +135,11 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1close
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1shutdown
   (JNIEnv *env, jobject jobj, jlong gh)
 {
-  CefRefPtr<ClientHandler> g_handler_local = (ClientHandler*)gh;
+  CefRefPtr<client::ClientHandler> g_handler_local = (client::ClientHandler*)gh;
 
   if (g_handler_local.get() && g_handler_local->GetBrowser() &&
       g_handler_local->GetBrowser()->GetHost()->GetWindowHandle()) {
-    g_handler_local->GetBrowser()->GetHost()->ParentWindowWillClose();
+	//g_handler_local->GetBrowser()->GetHost()->;
     g_handler_local->GetBrowser()->GetHost()->CloseBrowser(false);
     mainBrowserHandle = g_handler_local->GetBrowser()->GetHost()->GetWindowHandle();
   }
@@ -147,7 +159,7 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1clean_1cookie
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1setUrl
   (JNIEnv *env, jobject jobj, jlong gh, jstring url)
 {
-  CefRefPtr<ClientHandler> g_handler_local = (ClientHandler*)gh;
+  CefRefPtr<client::ClientHandler> g_handler_local = (client::ClientHandler*)gh;
   const char* chr = env->GetStringUTFChars(url, 0);
   CefString urlString = chr;
 
@@ -162,7 +174,7 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1setUrl
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1resized
   (JNIEnv *env, jobject jobj, jlong gh, jlong hwnd)
 {
-  CefRefPtr<ClientHandler> g_handler_local = (ClientHandler*)gh;
+  CefRefPtr<client::ClientHandler> g_handler_local = (client::ClientHandler*)gh;
   HWND hMain = (HWND)hwnd;
 
   if (g_handler_local.get() && g_handler_local->GetBrowser() &&
@@ -184,7 +196,7 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1resized
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1back
   (JNIEnv *env, jobject jobj, jlong gh)
 {
-  CefRefPtr<ClientHandler> g_handler_local = (ClientHandler*)gh;
+  CefRefPtr<client::ClientHandler> g_handler_local = (client::ClientHandler*)gh;
   if (g_handler_local.get()) {
     CefRefPtr<CefBrowser> browser = g_handler_local->GetBrowser();
     if (browser.get() && browser->CanGoBack()) {
@@ -196,7 +208,7 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1back
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1forward
   (JNIEnv *env, jobject jobj, jlong gh)
 {
-  CefRefPtr<ClientHandler> g_handler_local = (ClientHandler*)gh;
+  CefRefPtr<client::ClientHandler> g_handler_local = (client::ClientHandler*)gh;
   if (g_handler_local.get()) {
     CefRefPtr<CefBrowser> browser = g_handler_local->GetBrowser();
     if (browser.get() && browser->CanGoForward()) {
@@ -208,7 +220,7 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1forward
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1reload
   (JNIEnv *env, jobject jobj, jlong gh)
 {
-  CefRefPtr<ClientHandler> g_handler_local = (ClientHandler*)gh;
+  CefRefPtr<client::ClientHandler> g_handler_local = (client::ClientHandler*)gh;
   if (g_handler_local.get()) {
     CefRefPtr<CefBrowser> browser = g_handler_local->GetBrowser();
     if (browser.get()) {

@@ -15,9 +15,9 @@ class CefApp;
 class CefBrowser;
 class CefCommandLine;
 
-CefRefPtr<ClientHandler> InitBrowser(CefWindowHandle handle, CefString url);
-CefRefPtr<ClientHandler> NewBrowser(CefWindowHandle handle, CefString url);
-void CreateBrowser(CefWindowHandle handle, CefString url, CefRefPtr<ClientHandler> g_handler_local);
+CefRefPtr<client::ClientHandler> InitBrowser(CefWindowHandle handle, CefString url);
+CefRefPtr<client::ClientHandler> NewBrowser(CefWindowHandle handle, CefString url);
+void CreateBrowser(CefWindowHandle handle, CefString url, CefRefPtr<client::ClientHandler> g_handler_local);
 
 // Returns the main browser window instance.
 CefRefPtr<CefBrowser> AppGetBrowser();
