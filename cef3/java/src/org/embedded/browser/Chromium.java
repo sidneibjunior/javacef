@@ -30,10 +30,15 @@ public class Chromium extends Canvas {
 	}
 	
 	public Chromium (Composite parent, int style, String url) {
-		this(parent, style, url, new ChromeSettings());
+		this(parent, style, url, new ChromeSettings(), null);
 	}
 	
 	public Chromium (Composite parent, int style, final String url, ChromeSettings chromesettings) {
+		this(parent, style, url, chromesettings, null);
+	}
+
+
+	public Chromium (Composite parent, int style, final String url, ChromeSettings chromesettings, final String subprocessPath) {
 		super(parent, style);
 		parentbak = parent;
 		chromeset = chromesettings.Finalize();
@@ -74,7 +79,7 @@ public class Chromium extends Canvas {
 		} else if (OS_Windows) {
 			init = new Thread(new Runnable() {
 				public void run() {
-					browser_init(hwnd, url, chromeset);
+					browser_init(hwnd, url, chromeset, subprocessPath);
 				}
 			});
 			init.start();
@@ -84,7 +89,7 @@ public class Chromium extends Canvas {
 				} catch (InterruptedException e) { }
 			}
 		} else {
-			browser_init(hwnd, url, chromeset);
+			browser_init(hwnd, url, chromeset, subprocessPath);
 			final Chromium c = this;
 			final Display display = parent.getDisplay();
 			display.timerExec(5, new Runnable() {
@@ -129,6 +134,28 @@ public class Chromium extends Canvas {
 		}
 		else
 			browser_setUrl(chptr, url);
+	}
+	
+	public void executeJavaScript(final String script) {
+
+		if (!loaded) {
+
+			Thread su = new Thread(new Runnable() {
+				public void run() {
+					while (!loaded) {
+						try {
+							Thread.sleep(3);
+						} catch (InterruptedException e) {
+						}
+					}
+					browser_executeJavaScript(chptr, script);
+				}
+			});
+			su.start();
+		} else {
+			browser_executeJavaScript(chptr, script);
+		}
+
 	}
 	
 	public void cleanCookies() {
@@ -292,7 +319,7 @@ public class Chromium extends Canvas {
 		System.loadLibrary("chromium_loader");
 	}
 	
-	native void browser_init(long bhwnd, String url, ChromeSettings cset);
+	native void browser_init(long bhwnd, String url, ChromeSettings cset, String browserSubprocessPath);
 	native void browser_new(long bhwnd, int id, String url, ChromeSettings cset);
 	native void browser_message_loop();
 	native void browser_close(long bptr);
@@ -304,4 +331,5 @@ public class Chromium extends Canvas {
 	native void browser_back(long bptr);
 	native void browser_forward(long bptr);
 	native void browser_reload(long bptr);
+	native void browser_executeJavaScript(long bptr, String script);
 }

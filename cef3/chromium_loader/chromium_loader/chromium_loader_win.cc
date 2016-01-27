@@ -33,7 +33,7 @@ char szWorkingDir[MAX_PATH];  // The current working directory
 HWND mainBrowserHandle = NULL;
 
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1init
-  (JNIEnv *env, jobject jobj, jlong hwnd, jstring url, jobject chromiumset)
+  (JNIEnv *env, jobject jobj, jlong hwnd, jstring url, jobject chromiumset, jstring browser_subproces_path)
 {
   CefMainArgs main_args(GetModuleHandle(NULL));
   CefRefPtr<client::ClientApp> app(new client::ClientApp);
@@ -57,13 +57,23 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1init
 
   CefString path = CefString(szWorkingDir);
 
-#if defined(WIN32)
-#ifndef _WIN64
-  CefString(&settings.browser_subprocess_path) = path.ToString() + "\\..\\cef_runtime\\win32\\cefclient.exe";
-#else
-  CefString(&settings.browser_subprocess_path) = path.ToString() + "\\..\\cef_runtime\\win64\\cefclient.exe";
-#endif
-#endif
+  if (browser_subproces_path != NULL) {
+      const char* process_path = env->GetStringUTFChars(browser_subproces_path, 0);
+
+      CefString(&settings.browser_subprocess_path) = CefString(process_path);
+
+      env->ReleaseStringUTFChars(browser_subproces_path, process_path);
+
+  } else {
+
+	#if defined(WIN32)
+	#ifndef _WIN64
+	  CefString(&settings.browser_subprocess_path) = path.ToString() + "\\..\\cef_runtime\\win32\\cefclient.exe";
+	#else
+	  CefString(&settings.browser_subprocess_path) = path.ToString() + "\\..\\cef_runtime\\win64\\cefclient.exe";
+	#endif
+	#endif
+  }
 
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), NULL);
@@ -169,6 +179,21 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1setUrl
       browser->GetMainFrame()->LoadURL(urlString);
   }
   env->ReleaseStringUTFChars(url, chr);
+}
+
+JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1executeJavaScript
+  (JNIEnv *env, jobject jobj, jlong gh, jstring script)
+{
+  CefRefPtr<client::ClientHandler> g_handler_local = (client::ClientHandler*)gh;
+  const char* chr = env->GetStringUTFChars(script, 0);
+  CefString scriptString = chr;
+
+  if (g_handler_local.get()) {
+    CefRefPtr<CefBrowser> browser = g_handler_local->GetBrowser();
+    if (browser.get() && browser->GetMainFrame())
+      browser->GetMainFrame()->ExecuteJavaScript(scriptString, "", 0);
+  }
+  env->ReleaseStringUTFChars(script, chr);
 }
 
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1resized

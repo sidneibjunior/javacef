@@ -29,7 +29,7 @@ bool message_loop = false;
 #define JNIEXPORT __attribute ((visibility("default")))
 
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1init
-  (JNIEnv *env, jobject jobj, jlong hwnd, jstring url, jobject chromiumset)
+  (JNIEnv *env, jobject jobj, jlong hwnd, jstring url, jobject chromiumset, jstring browser_subproces_path)
 {
   // Make a simple argument.
   const int argc = 1;
@@ -57,15 +57,24 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1init
 
   CefString path = CefString(szWorkingDir);
 
-#ifndef __LP64__
-  CefString(&settings.browser_subprocess_path) = path.ToString() + "/cef_runtime/linux32/cefclient";
-  CefString(&settings.resources_dir_path) = path.ToString() + "/cef_runtime/linux32";
-  CefString(&settings.locales_dir_path) = path.ToString() + "/cef_runtime/linux32/locales";
-#else
-  CefString(&settings.browser_subprocess_path) = path.ToString() + "/cef_runtime/linux64/cefclient";
-  CefString(&settings.resources_dir_path) = path.ToString() + "/cef_runtime/linux64";
-  CefString(&settings.locales_dir_path) = path.ToString() + "/cef_runtime/linux64/locales";
-#endif
+  if (browser_subproces_path != NULL) {
+    const char* process_path = env->GetStringUTFChars(browser_subproces_path, 0);
+
+    CefString(&settings.browser_subprocess_path) = CefString(process_path);
+
+    env->ReleaseStringUTFChars(browser_subproces_path, process_path);
+
+  } else {
+	#ifndef __LP64__
+	  CefString(&settings.browser_subprocess_path) = path.ToString() + "/cef_runtime/linux32/cefclient";
+	  CefString(&settings.resources_dir_path) = path.ToString() + "/cef_runtime/linux32";
+	  CefString(&settings.locales_dir_path) = path.ToString() + "/cef_runtime/linux32/locales";
+	#else
+	  CefString(&settings.browser_subprocess_path) = path.ToString() + "/cef_runtime/linux64/cefclient";
+	  CefString(&settings.resources_dir_path) = path.ToString() + "/cef_runtime/linux64";
+	  CefString(&settings.locales_dir_path) = path.ToString() + "/cef_runtime/linux64/locales";
+	#endif
+  }
 
   BackupSignalHandlers();
 
@@ -172,6 +181,21 @@ JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1setUrl
       browser->GetMainFrame()->LoadURL(urlString);
   }
   env->ReleaseStringUTFChars(url, chr);
+}
+
+JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1executeJavaScript
+  (JNIEnv *env, jobject jobj, jlong gh, jstring script)
+{
+  CefRefPtr<client::ClientHandler> g_handler_local = (client::ClientHandler*)gh;
+  const char* chr = env->GetStringUTFChars(script, 0);
+  CefString scriptString = chr;
+
+  if (g_handler_local.get()) {
+    CefRefPtr<CefBrowser> browser = g_handler_local->GetBrowser();
+    if (browser.get() && browser->GetMainFrame())
+      browser->GetMainFrame()->ExecuteJavaScript(scriptString, "", 0);
+  }
+  env->ReleaseStringUTFChars(script, chr);
 }
 
 JNIEXPORT void JNICALL Java_org_embedded_browser_Chromium_browser_1resized

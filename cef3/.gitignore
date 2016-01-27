@@ -4,7 +4,10 @@ tools/gyp/*
 tools/gyp_chromium.pyc
 tools/gyp_helper.pyc
 **.sln
+**.suo
 **.vcxproj
 **.vcxproj.filters
+**.classpath
+**.project
 javacef.opensdf
 javacef.sdf
