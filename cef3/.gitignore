@@ -1,0 +1,10 @@
+out/*
+tools/gyp
+tools/gyp/*
+tools/gyp_chromium.pyc
+tools/gyp_helper.pyc
+**.sln
+**.vcxproj
+**.vcxproj.filters
+javacef.opensdf
+javacef.sdf
